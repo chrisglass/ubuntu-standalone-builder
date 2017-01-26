@@ -30,8 +30,8 @@ class TestWriteCloudConfig(object):
         output_file = tmpdir.join('output.yaml')
         generate_build_config._write_cloud_config(
             output_file.strpath, ppa='ppa:foo/bar')
-        assert ('- chroot $CHROOT_ROOT -- add-apt-repository -y -u '
-               'ppa:foo/bar\n' in output_file.readlines())
+        assert ('- chroot $CHROOT_ROOT add-apt-repository -y -u ppa:foo/bar\n'
+                in output_file.readlines())
 
 
 class TestMain(object):

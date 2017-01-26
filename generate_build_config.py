@@ -47,7 +47,7 @@ def _write_cloud_config(output_file, ppa=""):
     
     if ppa:
         # If we passed a PPA, inject a line in the template.
-        ppa = "\n- chroot $CHROOT_ROOT -- add-apt-repository -y -u {}".format(ppa)
+        ppa = "\n- chroot $CHROOT_ROOT add-apt-repository -y -u {}".format(ppa)
         
     contents = TEMPLATE.format(ppa)
         
