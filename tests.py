@@ -26,6 +26,13 @@ class TestWriteCloudConfig(object):
         generate_build_config._write_cloud_config(output_file.strpath)
         assert '- export BUILD_ID=output\n' in output_file.readlines()
 
+    def test_adding_a_ppa_adds_a_chroot_line(self, tmpdir):
+        output_file = tmpdir.join('output.yaml')
+        generate_build_config._write_cloud_config(
+            output_file.strpath, ppa='ppa:foo/bar')
+        assert ('- chroot $CHROOT_ROOT -- add-apt-repository -y -u '
+               'ppa:foo/bar\n' in output_file.readlines())
+
 
 class TestMain(object):
 
@@ -48,5 +55,17 @@ class TestMain(object):
         write_cloud_config_mock = mocker.patch(
             'generate_build_config._write_cloud_config')
         generate_build_config.main()
-        assert [mocker.call(output_filename)] == \
+        assert [mocker.call(output_filename, ppa="")] == \
             write_cloud_config_mock.call_args_list
+
+    def test_main_passes_ppa_argument_to_write_cloud_config(self, mocker):
+        output_filename = 'output.yaml'
+        mocker.patch('sys.argv', ['ubuntu-standalone-builder.py',
+            output_filename, '--ppa', 'ppa:foo/bar'])
+        write_cloud_config_mock = mocker.patch(
+            'generate_build_config._write_cloud_config')
+        generate_build_config.main()
+        assert [mocker.call(output_filename, ppa="ppa:foo/bar")] == \
+            write_cloud_config_mock.call_args_list
+
+

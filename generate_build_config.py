@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
+import argparse
 import sys
 
 
@@ -26,7 +27,7 @@ runcmd:
 
 # Perform the build
 - /home/ubuntu/launchpad-buildd/mount-chroot $BUILD_ID
-- /home/ubuntu/launchpad-buildd/update-debian-chroot $BUILD_ID
+- /home/ubuntu/launchpad-buildd/update-debian-chroot $BUILD_ID{}
 - /home/ubuntu/launchpad-buildd/buildlivefs --arch amd64 --project ubuntu-cpc --series xenial --build-id $BUILD_ID
 - /home/ubuntu/launchpad-buildd/umount-chroot $BUILD_ID
 - mkdir /home/ubuntu/images
@@ -34,22 +35,33 @@ runcmd:
 """
 
 
-def _write_cloud_config(output_file):
+def _write_cloud_config(output_file, ppa=""):
     """
     Write an image building cloud-config file to a given location.
 
     :param output_file:
         The path for the file to write to.
+    :param ppa:
+        An optional extra PPA to inject in the build chroot.
     """
+    
+    if ppa:
+        # If we passed a PPA, inject a line in the template.
+        ppa = "\n- chroot $CHROOT_ROOT -- add-apt-repository -y -u {}".format(ppa)
+        
+    contents = TEMPLATE.format(ppa)
+        
     with open(output_file, 'w') as f:
-        f.write(TEMPLATE)
+        f.write(contents)
 
 
 def main():
-    if len(sys.argv) != 2:
-        print('{} expects exactly one argument.'.format(sys.argv[0]))
-        sys.exit(1)
-    _write_cloud_config(sys.argv[1])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('output_filename')
+    parser.add_argument('--ppa', dest='ppa', default="")
+    args = parser.parse_args()
+
+    _write_cloud_config(args.output_filename, ppa=args.ppa)
 
 
 if __name__ == '__main__':
