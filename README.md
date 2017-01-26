@@ -18,11 +18,13 @@ Building images using ubuntu-standalone builder is a three-phase process:
 ### Generating cloud-config
 
 The `generate_build_config.py` tool is used to produce the cloud-config
-that we will pass in to our cloud instance.  Currently, it takes a
-single argument that specifies the output location:
+that we will pass in to our cloud instance.  Currently, it takes an
+argument that specifies the output location, an optionally a "--ppa" argument
+specifying an extra PPA to be added to the build chroot (for custom
+livecd-rootfs packages for example):
 
 ```
-$ ./generate_build_config.py build-config.yaml
+$ ./generate_build_config.py --ppa ppa:foo/bar build-config.yaml
 ```
 
 The cloud-config it produces will build the artifacts that are found on
